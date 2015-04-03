@@ -731,7 +731,8 @@ public class TestRunner
       // Make sure we create a graph based on the intercepted methods, otherwise an interceptor
       // removing methods would cause the graph never to terminate (because it would expect
       // termination from methods that never get invoked).
-      DynamicGraph<ITestNGMethod> graph = createDynamicGraph(intercept(m_allTestMethods));
+      ITestNGMethod[] interceptedMethods =  intercept(m_allTestMethods);
+      DynamicGraph<ITestNGMethod> graph = createDynamicGraph(interceptedMethods);
       if (parallel) {
         if (graph.getNodeCount() > 0) {
           GraphThreadPoolExecutor<ITestNGMethod> executor =
@@ -753,6 +754,7 @@ public class TestRunner
       } else {
         boolean debug = false;
         List<ITestNGMethod> freeNodes = graph.getFreeNodes();
+          
         if (debug) {
           System.out.println("Free nodes:" + freeNodes);
         }
@@ -762,7 +764,13 @@ public class TestRunner
         }
 
         while (! freeNodes.isEmpty()) {
-          List<IWorker<ITestNGMethod>> runnables = createWorkers(freeNodes);
+
+          List<IWorker<ITestNGMethod>> runnables;
+          if (freeNodes.equals(Arrays.asList(interceptedMethods))) {
+            runnables = createWorkers(Arrays.asList(interceptedMethods));
+          } else {
+            runnables = createWorkers(freeNodes);
+          }
           for (IWorker<ITestNGMethod> r : runnables) {
             r.run();
           }
@@ -844,7 +852,6 @@ public class TestRunner
     //
     // Finally, sort the parallel methods by classes
     //
-    methodInstances = m_methodInterceptor.intercept(methodInstances, this);
     Map<String, String> params = m_xmlTest.getAllParameters();
 
     Set<Class<?>> processedClasses = Sets.newHashSet();
