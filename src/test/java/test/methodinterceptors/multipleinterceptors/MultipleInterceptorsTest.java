@@ -31,7 +31,7 @@ public class MultipleInterceptorsTest extends SimpleBaseTest {
     @Test
     public void testMultipleInterceptorsWithPreserveOrder() {
       TestNG tng = create();
-      tng.setTestSuites(Arrays.asList("target/test-classes/methodinterceptors/multipleinterceptors/multiple-interceptors.xml"));
+      tng.setTestSuites(Arrays.asList(getPathToResource("/methodinterceptors/multipleinterceptors/multiple-interceptors.xml")));
       tng.run();
       //Assert.assertEquals(interceptors.size(), 3);
       Assert.assertTrue(interceptors.get(0).equals(FirstInterceptor.class));
